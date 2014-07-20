@@ -1,5 +1,5 @@
-asiosc
-======
+aiosc
+=====
 
 This is an experimental minimalistic OSC communication module which uses
 asyncio instead of sockets and is compatible with the asyncio event loop.
