@@ -6,8 +6,12 @@ import aiosc
 class EchoServer(aiosc.OSCProtocol):
     def __init__(self):
         super().__init__(handlers={
+            '/sys/exit': self.exit,
             '*': self.echo
         })
+
+    def exit(self, *args):
+        asyncio.get_event_loop().stop()
 
     def echo(self, addr, path, *args):
         print("incoming message from {}: {} {}".format(addr, path, args))
