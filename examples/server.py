@@ -5,7 +5,7 @@ import aiosc
 
 def protocol_factory():
     osc = aiosc.OSCProtocol({
-        '*': lambda addr, path, *args: print(addr, path, args)
+        '//*': lambda addr, path, *args: print(addr, path, args)
     })
     return osc
 

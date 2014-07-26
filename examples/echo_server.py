@@ -7,7 +7,7 @@ class EchoServer(aiosc.OSCProtocol):
     def __init__(self):
         super().__init__(handlers={
             '/sys/exit': self.exit,
-            '*': self.echo
+            '//*': self.echo,
         })
 
     def exit(self, *args):

@@ -33,16 +33,26 @@ def singleton(cls):
 class Impulse:
     pass
 
+OSC_ADDR_REGEXP = '[^ #*,/?[\]{}]'
+OSC_ADDR_SLASH_REGEXP = '[^ #*,?[\]{}]'
+
 # translate osc address pattern to regexp for use in message handlers
 def translate_pattern(pattern):
     result = ''
     i = 0
     while i < len(pattern):
         c = pattern[i]
-        if c == '?':
-            result += '.'
+        if c == '/':
+            j = i + 1
+            if pattern[j] == '/':
+                result += OSC_ADDR_SLASH_REGEXP + '*\/'
+                i = j
+            else:
+                result += re.escape(c)
+        elif c == '?':
+            result += OSC_ADDR_REGEXP
         elif c == '*':
-            result += '.*'
+            result += OSC_ADDR_REGEXP + '*'
         elif c == '[':
             j = pattern.index(']', i)
             sub = pattern[i+1:j]
@@ -63,7 +73,7 @@ def translate_pattern(pattern):
         else:
             result += re.escape(c)
         i += 1
-    return result
+    return "^" + result + "$"
 
 # read padded string from the beginning of a packet and return (value, tail)
 def read_string(packet):
