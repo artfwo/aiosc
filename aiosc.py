@@ -179,6 +179,9 @@ class OSCProtocol(asyncio.DatagramProtocol):
     def connection_made(self, transport):
         self.transport = transport
 
+    def disconnect(self):
+        self.transport.close()
+
     def datagram_received(self, data, addr):
         path, args = parse_message(data)
 
