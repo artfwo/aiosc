@@ -60,20 +60,20 @@ def translate_pattern(pattern):
             if sub.startswith('!'):
                 sub = sub[1:]
                 result += '^'
-            result += "-".join([re.escape(s) for s in sub.split("-")])
+            result += '-'.join([re.escape(s) for s in sub.split('-')])
             result += ']'
             i = j
         elif c == '{':
             j = pattern.index('}', i)
             sub = pattern[i+1:j]
             result += '('
-            result += "|".join([re.escape(s) for s in sub.split(",")])
+            result += '|'.join([re.escape(s) for s in sub.split(',')])
             result += ')'
             i = j
         else:
             result += re.escape(c)
         i += 1
-    return "^" + result + "$"
+    return '^' + result + '$'
 
 # read padded string from the beginning of a packet and return (value, tail)
 def read_string(packet):
