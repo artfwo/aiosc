@@ -44,7 +44,7 @@ def translate_pattern(pattern):
         c = pattern[i]
         if c == '/':
             j = i + 1
-            if pattern[j] == '/':
+            if j < len(pattern) and pattern[j] == '/':
                 result += OSC_ADDR_SLASH_REGEXP + '*\/'
                 i = j
             else:
