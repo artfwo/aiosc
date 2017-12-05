@@ -170,11 +170,12 @@ def pack_message(path, *args):
 class OSCProtocol(asyncio.DatagramProtocol):
     def __init__(self, handlers=None):
         super().__init__()
-        self._handlers = {}
+        self._handlers = []
 
         if handlers:
-            for pattern in handlers:
-                self.add_handler(pattern, handlers[pattern])
+            for pattern, handler in handlers.items():
+                pattern_re = re.compile(translate_pattern(pattern))
+                self._handlers.append((pattern_re, handler))
 
     def connection_made(self, transport):
         self.transport = transport
@@ -183,13 +184,9 @@ class OSCProtocol(asyncio.DatagramProtocol):
         path, args = parse_message(data)
 
         # dispatch the message
-        for r in self._handlers:
-            if re.match(r, path):
-                self._handlers[r](addr, path, *args)
-
-    def add_handler(self, pattern, method):
-        r = translate_pattern(pattern)
-        self._handlers[r] = method
+        for pattern_re, handler in self._handlers:
+            if pattern_re.match(path):
+                handler(addr, path, *args)
 
     def send(self, path, *args, addr=None):
         return self.transport.sendto(pack_message(path, *args), addr=addr)
