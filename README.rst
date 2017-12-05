@@ -42,9 +42,12 @@ handler methods for incoming messages:
     class EchoServer(aiosc.OSCProtocol):
         def __init__(self):
             super().__init__(handlers={
-                '/sys/exit':lambda addr, path, *args: sys.exit(0),
-                '//*': lambda addr, path, *args: print(addr, path, args)
+                '/sys/exit': lambda addr, path, *args: sys.exit(0),
+                '//*': self.echo,
             })
+
+        def echo(self, addr, path, *args):
+            print("incoming message from {}: {} {}".format(addr, path, args))
 
     loop = asyncio.get_event_loop()
     coro = loop.create_datagram_endpoint(EchoServer, local_addr=('127.0.0.1', 9000))
