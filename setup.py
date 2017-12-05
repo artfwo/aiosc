@@ -12,7 +12,7 @@ setup(
     url='https://github.com/artfwo/aiosc',
     description='Minimalistic Open Sound Control (OSC) communication module using asyncio',
     long_description=long_description,
-    version='0.1.2',
+    version='0.1.3',
     py_modules=['aiosc'],
     include_package_data=True,
     classifiers=[
