@@ -174,8 +174,11 @@ class OSCProtocol(asyncio.DatagramProtocol):
 
         if handlers:
             for pattern, handler in handlers.items():
-                pattern_re = re.compile(translate_pattern(pattern))
-                self._handlers.append((pattern_re, handler))
+                self.add_handler(pattern, handler)
+
+    def add_handler(self, pattern, handler):
+        pattern_re = re.compile(translate_pattern(pattern))
+        self._handlers.append((pattern_re, handler))
 
     def connection_made(self, transport):
         self.transport = transport
