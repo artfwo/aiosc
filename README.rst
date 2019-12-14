@@ -13,7 +13,7 @@ aiosc requires at least Python 3.5. It can be installed using pip::
 
     pip3 install aiosc
 
-Or use `--user` option to install aiosc locally::
+Or use ``--user`` option to install aiosc locally::
 
     pip3 install --user aiosc
 
