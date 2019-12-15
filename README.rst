@@ -78,7 +78,7 @@ Bundles are not yet supported.
 
 Contrary to most OSC implementations, OSC data types are picked from the
 preliminary spec documented in Features and Future of Open Sound Control
-version 1.1 for NIME paper. For example, 'I' typetag is decoded to Impulse
+version 1.1 for NIME paper. For example, ``I`` typetag is decoded to Impulse
 (aka "bang") which is passed around as ``aiosc.Impulse`` singleton.
 
 Suggestions, bug reports, issues and/or pull requests are, of course, welcome.
