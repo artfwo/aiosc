@@ -2,8 +2,8 @@
 aiosc
 =====
 
-This is an experimental minimalistic Open Sound Control (OSC) communication
-module which uses asyncio for network operations and is compatible with the
+aiosc is a minimalistic Open Sound Control (OSC) communication module
+which uses asyncio for network operations and is compatible with the
 asyncio event loop.
 
 Installation
@@ -76,10 +76,10 @@ Notes
 
 Bundles are not yet supported.
 
-Contrary to most OSC implementations, OSC data types are picked from the
-preliminary spec documented in Features and Future of Open Sound Control
-version 1.1 for NIME paper. For example, ``I`` typetag is decoded to Impulse
-(aka "bang") which is passed around as ``aiosc.Impulse`` singleton.
+OSC data types are picked from the preliminary spec documented in Features
+and Future of Open Sound Control version 1.1 for NIME paper. For example,
+``I`` typetag is decoded to Impulse (aka "bang") which is passed around
+as ``aiosc.Impulse`` singleton.
 
 Suggestions, bug reports, issues and/or pull requests are, of course, welcome.
 
