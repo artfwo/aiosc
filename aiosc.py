@@ -103,6 +103,9 @@ def parse_message(packet):
         elif t == 'f':
             len = 4
             value, tail = struct.unpack('>f', tail[:len])[0], tail[len:]
+        elif t == 'h':
+            len = 8
+            value, tail = struct.unpack('>q', tail[:len])[0], tail[len:]
         elif t == 's':
             value, tail = read_string(tail)
         elif t == 'b':
