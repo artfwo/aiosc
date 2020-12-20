@@ -28,9 +28,8 @@ To send an OSC message just use ``aiosc.send``:
     import aiosc
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        aiosc.send(('127.0.0.1', 9000), '/hello', 'world')
-    )
+    coro = aiosc.send(('127.0.0.1', 9000), '/hello', 'world')
+    loop.run_until_complete(coro)
 
 To implement an OSC server with ``aiosc`` you should create an UDP endpoint
 using ``aiosc.OSCProtocol`` as the protocol. ``OSCProtocol`` can be subclassed
