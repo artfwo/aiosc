@@ -9,7 +9,7 @@ asyncio event loop.
 Installation
 ============
 
-aiosc requires at least Python 3.5. It can be installed using pip::
+aiosc requires at least Python 3.7. It can be installed using pip::
 
     pip3 install aiosc
 
@@ -48,11 +48,14 @@ handler methods for incoming messages:
         def echo(self, addr, path, *args):
             print("incoming message from {}: {} {}".format(addr, path, args))
 
-    loop = asyncio.get_event_loop()
-    coro = loop.create_datagram_endpoint(EchoServer, local_addr=('127.0.0.1', 9000))
-    transport, protocol = loop.run_until_complete(coro)
+    async def main():
+        loop = asyncio.get_running_loop()
+        transport, protocol = await loop.create_datagram_endpoint(EchoServer,
+            local_addr=('127.0.0.1', 9000))
 
-    loop.run_forever()
+        await loop.create_future()
+
+    asyncio.run(main())
 
 For more examples, see ``examples/``.
 

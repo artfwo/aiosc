@@ -198,7 +198,7 @@ class OSCProtocol(asyncio.DatagramProtocol):
         return self.transport.sendto(pack_message(path, *args), addr=addr)
 
 async def send(target, path, *args, loop=None):
-    loop = loop or asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     transport, protocol = await loop.create_datagram_endpoint(OSCProtocol, remote_addr=target)
     protocol.send(path, *args)
     transport.close()

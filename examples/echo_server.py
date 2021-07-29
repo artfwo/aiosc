@@ -18,9 +18,11 @@ class EchoServer(aiosc.OSCProtocol):
         # echo the message
         self.send(path, *args, addr=addr)
 
-loop = asyncio.get_event_loop()
+async def main():
+    loop = asyncio.get_running_loop()
+    transport, protocol = await loop.create_datagram_endpoint(EchoServer,
+        local_addr=('127.0.0.1', 9000))
 
-coro = loop.create_datagram_endpoint(EchoServer, local_addr=('127.0.0.1', 9000))
-transport, protocol = loop.run_until_complete(coro)
+    await loop.create_future()
 
-loop.run_forever()
+asyncio.run(main())

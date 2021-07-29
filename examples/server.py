@@ -9,7 +9,11 @@ def protocol_factory():
     })
     return osc
 
-loop = asyncio.get_event_loop()
-coro = loop.create_datagram_endpoint(protocol_factory, local_addr=('127.0.0.1', 9000))
-transport, protocol = loop.run_until_complete(coro)
-loop.run_forever()
+async def main():
+    loop = asyncio.get_running_loop()
+    transport, protocol = await loop.create_datagram_endpoint(protocol_factory,
+        local_addr=('127.0.0.1', 9000))
+
+    await loop.create_future()
+
+asyncio.run(main())
