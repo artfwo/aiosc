@@ -13,14 +13,18 @@ aiosc requires at least Python 3.7. It can be installed using pip::
 
     pip3 install aiosc
 
-Or use ``--user`` option to install aiosc locally::
+Alternatively, use ``--user`` option to install aiosc for the current user::
 
     pip3 install --user aiosc
 
 Usage
 =====
 
-To send an OSC message just use ``aiosc.send``:
+To send OSC messages with ``aiosc``, create an asyncio datagram connection
+endpoint using ``aiosc.OSCProtocol`` as the protocol factory.
+
+A datagram connection can be created with ``loop.create_datagram_endpoint``
+method as follows:
 
 .. code-block:: python
 
@@ -28,12 +32,17 @@ To send an OSC message just use ``aiosc.send``:
     import aiosc
 
     async def main():
-        await aiosc.send(('127.0.0.1', 9000), '/hello', 'world')
+        loop = asyncio.get_running_loop()
+        
+        transport, osc = await loop.create_datagram_endpoint(aiosc.OSCProtocol,
+            remote_addr=('127.0.0.1', 8000))
+
+        osc.send('/hello', 'world')
+        osc.send('/goodbye', 'cruel', 'world')
 
     asyncio.run(main())
 
-To implement an OSC server with ``aiosc`` you should create an UDP endpoint
-using ``aiosc.OSCProtocol`` as the protocol. ``OSCProtocol`` can be subclassed
+For an OSC server implementation, ``aiosc.OSCProtocol`` can be subclassed
 or directly constructed with a dictionary mapping OSC address patterns to
 handler methods for incoming messages:
 
@@ -51,7 +60,8 @@ handler methods for incoming messages:
 
     async def main():
         loop = asyncio.get_running_loop()
-        transport, protocol = await loop.create_datagram_endpoint(EchoServer,
+
+        transport, osc = await loop.create_datagram_endpoint(EchoServer,
             local_addr=('127.0.0.1', 9000))
 
         await loop.create_future()
