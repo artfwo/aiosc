@@ -13,7 +13,7 @@ aiosc requires at least Python 3.7. It can be installed using pip::
 
     pip3 install aiosc
 
-Alternatively, use ``--user`` option to install aiosc for the current user::
+Alternatively, use ``--user`` option to install aiosc only for the current user::
 
     pip3 install --user aiosc
 
@@ -23,8 +23,9 @@ Usage
 To send OSC messages with ``aiosc``, create an asyncio datagram connection
 endpoint using ``aiosc.OSCProtocol`` as the protocol factory.
 
-A datagram connection can be created with ``loop.create_datagram_endpoint``
-method as follows:
+A datagram connection can be created with the ``create_datagram_endpoint``
+method of the asyncio event loop. Use the argument ``remote_addr`` to specify
+the OSC server address and port as follows:
 
 .. code-block:: python
 
@@ -37,16 +38,28 @@ method as follows:
         transport, osc = await loop.create_datagram_endpoint(aiosc.OSCProtocol,
             remote_addr=('127.0.0.1', 8000))
 
-        osc.send('/hello', 'world')
-        osc.send('/goodbye', 'cruel', 'world')
+        osc.send('/hello/world')
+        osc.send('/a/b/cde', 1000, -1, 'hello', 1.234, 5.678)
 
     asyncio.run(main())
 
 For an OSC server implementation, ``aiosc.OSCProtocol`` can be subclassed
-or directly constructed with a dictionary mapping OSC address patterns to
-handler methods for incoming messages:
+or directly constructed with a dictionary which maps OSC address patterns to
+handler methods for incoming messages.
+
+When creating datagram connection for an OSC server with
+``create_datagram_endpoint``, use the argument ``local_addr`` to specify
+the interface (address) and listening port for the server.
+
+In a typical case, local address can look like ``('0.0.0.0', 9000)`` where
+``9000`` is the port number and ``0.0.0.0`` address designates that the server
+will be listening on all available network interfaces.
 
 .. code-block:: python
+
+    import asyncio
+    import aiosc
+    import sys
 
     class EchoServer(aiosc.OSCProtocol):
         def __init__(self):
@@ -62,7 +75,7 @@ handler methods for incoming messages:
         loop = asyncio.get_running_loop()
 
         transport, osc = await loop.create_datagram_endpoint(EchoServer,
-            local_addr=('127.0.0.1', 9000))
+            local_addr=('0.0.0.0', 8000))
 
         await loop.create_future()
 
