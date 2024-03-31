@@ -36,8 +36,8 @@ class Impulse:
     pass
 
 
-OSC_ADDR_REGEXP = '[^ #*,/?[\]{}]'
-OSC_ADDR_SLASH_REGEXP = '[^ #*,?[\]{}]'
+OSC_ADDR_REGEXP = r'[^ #*,/?[\]{}]'
+OSC_ADDR_SLASH_REGEXP = r'[^ #*,?[\]{}]'
 
 
 # translate osc address pattern to regexp for use in message handlers
@@ -49,7 +49,7 @@ def translate_pattern(pattern):
         if c == '/':
             j = i + 1
             if j < len(pattern) and pattern[j] == '/':
-                result += OSC_ADDR_SLASH_REGEXP + '*\/'
+                result += OSC_ADDR_SLASH_REGEXP + r'*\/'
                 i = j
             else:
                 result += re.escape(c)
