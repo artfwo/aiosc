@@ -21,11 +21,13 @@ Usage
 =====
 
 To send OSC messages with ``aiosc``, create an asyncio datagram connection
-endpoint using ``aiosc.OSCProtocol`` as the protocol factory.
+endpoint of type ``aiosc.OSCProtocol``.
 
-A datagram connection can be created with the ``create_datagram_endpoint``
-method of the asyncio event loop. Use the argument ``remote_addr`` to specify
-the OSC server address and port as follows:
+A datagram connection can be created with the ``aiosc.connect`` convenience
+function or ``create_datagram_method`` of the asyncio event loop.
+
+Both methods have the same set of arguments. Use the argument ``remote_addr``
+to specify the OSC server address and port as follows:
 
 .. code-block:: python
 
@@ -33,13 +35,10 @@ the OSC server address and port as follows:
     import aiosc
 
     async def main():
-        loop = asyncio.get_running_loop()
-        
-        transport, osc = await loop.create_datagram_endpoint(aiosc.OSCProtocol,
-            remote_addr=('127.0.0.1', 8000))
+        client = await aiosc.connect(remote_addr=('127.0.0.1', 8000))
 
-        osc.send('/hello/world')
-        osc.send('/a/b/cde', 1000, -1, 'hello', 1.234, 5.678)
+        client.send('/hello/world')
+        client.send('/a/b/cde', 1000, -1, 'hello', 1.234, 5.678)
 
     asyncio.run(main())
 
@@ -47,9 +46,9 @@ For an OSC server implementation, ``aiosc.OSCProtocol`` can be subclassed
 or directly constructed with a dictionary which maps OSC address patterns to
 handler methods for incoming messages.
 
-When creating datagram connection for an OSC server with
-``create_datagram_endpoint``, use the argument ``local_addr`` to specify
-the interface (address) and listening port for the server.
+``aiosc.OSCProtocol`` provides a convenience async method ``connect`` that
+can be used to bind the UDP socket and connect it to a remote endpoint using
+``local_addr`` and ``remote_addr`` arguments.
 
 In a typical case, local address can look like ``('0.0.0.0', 9000)`` where
 ``9000`` is the port number and ``0.0.0.0`` address designates that the server
@@ -72,12 +71,8 @@ will be listening on all available network interfaces.
             print("incoming message from {}: {} {}".format(addr, path, args))
 
     async def main():
-        loop = asyncio.get_running_loop()
-
-        transport, osc = await loop.create_datagram_endpoint(EchoServer,
-            local_addr=('0.0.0.0', 8000))
-
-        await loop.create_future()
+        server = await EchoServer.connect(local_addr=('0.0.0.0', 8000))
+        await asyncio.get_running_loop().create_future()
 
     asyncio.run(main())
 
