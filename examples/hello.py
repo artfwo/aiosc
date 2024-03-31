@@ -4,6 +4,7 @@ import asyncio
 import aiosc
 
 async def main():
-    await aiosc.send(('127.0.0.1', 9000), '/hello', 'world')
+    client = await aiosc.connect(remote_addr=('127.0.0.1', 9000))
+    client.send('/hello', 'world')
 
 asyncio.run(main())
