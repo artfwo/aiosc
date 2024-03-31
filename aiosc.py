@@ -199,6 +199,12 @@ class OSCProtocol(asyncio.DatagramProtocol):
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.transport.close()
 
+    @classmethod
+    async def connect(cls, **kwargs):
+        loop = asyncio.get_running_loop()
+        transport, protocol = await loop.create_datagram_endpoint(cls, **kwargs)
+        return protocol
+
     def add_handler(self, pattern, handler):
         pattern_re = re.compile(translate_pattern(pattern))
         self._handlers.append((pattern_re, handler))
