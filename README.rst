@@ -24,10 +24,9 @@ To send OSC messages with ``aiosc``, create an asyncio datagram connection
 endpoint of type ``aiosc.OSCProtocol``.
 
 A datagram connection can be created with the ``aiosc.connect`` convenience
-function or ``create_datagram_method`` of the asyncio event loop.
-
-Both methods have the same set of arguments. Use the argument ``remote_addr``
-to specify the OSC server address and port as follows:
+function or ``create_datagram_method`` of the asyncio event loop. Both have
+the same set of arguments. Use the argument ``remote_addr`` to specify
+the OSC server address and port as follows:
 
 .. code-block:: python
 
@@ -42,15 +41,14 @@ to specify the OSC server address and port as follows:
 
     asyncio.run(main())
 
-For an OSC server implementation, ``aiosc.OSCProtocol`` can be subclassed
-or directly constructed with a dictionary which maps OSC address patterns to
-handler methods for incoming messages.
+Subclassing ``aiosc.OSCProtocol`` is the recommended way of creating
+OSC server implementations.
 
-``aiosc.OSCProtocol`` provides a convenience async method ``connect`` that
-can be used to bind the UDP socket and connect it to a remote endpoint using
-``local_addr`` and ``remote_addr`` arguments.
+``aiosc.OSCProtocol`` provides a convenience async class method ``connect``
+that can be used to bind the UDP socket and connect it to a remote endpoint
+using ``local_addr`` and ``remote_addr`` arguments.
 
-In a typical case, local address can look like ``('0.0.0.0', 9000)`` where
+In a typical case, local address will look like ``('0.0.0.0', 9000)`` where
 ``9000`` is the port number and ``0.0.0.0`` address designates that the server
 will be listening on all available network interfaces.
 
