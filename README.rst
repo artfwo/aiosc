@@ -24,7 +24,7 @@ To send OSC messages with ``aiosc``, create an asyncio datagram connection
 endpoint of type ``aiosc.OSCProtocol``.
 
 A datagram connection can be created with the ``aiosc.connect`` convenience
-function or ``create_datagram_method`` of the asyncio event loop. Both have
+function or ``create_datagram_endpoint`` of the asyncio event loop. Both have
 the same set of arguments. Use the argument ``remote_addr`` to specify
 the OSC server address and port as follows:
 
