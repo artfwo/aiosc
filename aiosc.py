@@ -26,9 +26,8 @@ import struct
 
 
 def singleton(cls):
-    instance = cls()
-    instance.__call__ = lambda: instance
-    return instance
+    cls.__call__ = lambda self: self
+    return cls()
 
 
 @singleton
@@ -183,16 +182,11 @@ class OSCProtocol(asyncio.DatagramProtocol):
     def __init__(self, handlers=None):
         super().__init__()
         self._handlers = []
+        self.transport = None
 
         if handlers:
             for pattern, handler in handlers.items():
                 self.add_handler(pattern, handler)
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        self.transport.close()
 
     @classmethod
     async def connect(cls, **kwargs):
@@ -217,6 +211,11 @@ class OSCProtocol(asyncio.DatagramProtocol):
 
     def send(self, path, *args, addr=None):
         return self.transport.sendto(pack_message(path, *args), addr=addr)
+
+    def close(self):
+        if self.transport:
+            self.transport.close()
+            self.transport = None
 
 
 async def connect(**kwargs):
