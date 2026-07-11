@@ -37,6 +37,8 @@ class Impulse:
 
 OSC_ADDR_REGEXP = r'[^ #*,/?[\]{}]'
 OSC_ADDR_SLASH_REGEXP = r'[^ #*,?[\]{}]'
+NTP_EPOCH_OFFSET = 2208988800
+NOW = struct.pack('>Q', 1)
 
 
 # translate osc address pattern to regexp for use in message handlers
@@ -94,9 +96,6 @@ def read_blob(packet):
 
 
 def parse_message(packet):
-    if packet.startswith(b'#bundle'):
-        raise NotImplementedError('OSC bundles are not yet supported')
-
     tail = packet
     path, tail = read_string(tail)
     type_tag, tail = read_string(tail)
@@ -132,6 +131,20 @@ def parse_message(packet):
         args.append(value)
 
     return (path, args)
+
+
+# yield (path, args) for each message in bundle, ignoring timetags
+def parse_bundle(packet):
+    tail = packet[16:]
+
+    while tail:
+        size, tail = struct.unpack('>I', tail[:4])[0], tail[4:]
+        element, tail = tail[:size], tail[size:]
+
+        if element.startswith(b'#bundle'):
+            yield from parse_bundle(element)
+        else:
+            yield parse_message(element)
 
 
 # convert string to padded osc string
@@ -178,6 +191,25 @@ def pack_message(path, *args):
     return result
 
 
+# convert unix time to a 64-bit ntp timetag
+def pack_timetag(t):
+    seconds = int(t) + NTP_EPOCH_OFFSET
+    fraction = int((t % 1.0) * (1 << 32))
+    return struct.pack('>II', seconds, fraction)
+
+
+# pack an iterable of (path, *args) tuples into bundle
+def pack_bundle(messages, timetag=None):
+    result = b'#bundle\x00'
+    result += NOW if timetag is None else pack_timetag(timetag)
+
+    for path, *args in messages:
+        data = pack_message(path, *args)
+        result += struct.pack('>I', len(data)) + data
+
+    return result
+
+
 class OSCProtocol(asyncio.DatagramProtocol):
     def __init__(self, handlers=None):
         super().__init__()
@@ -202,15 +234,22 @@ class OSCProtocol(asyncio.DatagramProtocol):
         self.transport = transport
 
     def datagram_received(self, data, addr):
-        path, args = parse_message(data)
+        if data.startswith(b'#bundle'):
+            messages = parse_bundle(data)
+        else:
+            messages = [parse_message(data)]
 
-        # dispatch the message
-        for pattern_re, handler in self._handlers:
-            if pattern_re.match(path):
-                handler(addr, path, *args)
+        # dispatch the messages
+        for path, args in messages:
+            for pattern_re, handler in self._handlers:
+                if pattern_re.match(path):
+                    handler(addr, path, *args)
 
     def send(self, path, *args, addr=None):
         return self.transport.sendto(pack_message(path, *args), addr=addr)
+
+    def send_bundle(self, messages, timetag=None, addr=None):
+        return self.transport.sendto(pack_bundle(messages, timetag=timetag), addr=addr)
 
     def close(self):
         if self.transport:
