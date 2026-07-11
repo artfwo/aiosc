@@ -83,15 +83,15 @@ def translate_pattern(pattern):
 # read padded string from the beginning of a packet and return (value, tail)
 def read_string(packet):
     actual_len = packet.index(b'\x00')
-    padded_len = (actual_len // 4 + 1) * 4
+    padded_len = ((actual_len + 4) // 4) * 4
     return str(packet[:actual_len], 'ascii'), packet[padded_len:]
 
 
 # read padded blob from the beginning of a packet and return (value, tail)
 def read_blob(packet):
     actual_len, tail = struct.unpack('>I', packet[:4])[0], packet[4:]
-    padded_len = (actual_len // 4 + 1) * 4
-    return tail[:padded_len][:actual_len], tail[padded_len:]
+    padded_len = ((actual_len + 3) // 4) * 4
+    return tail[:actual_len], tail[padded_len:]
 
 
 def parse_message(packet):
@@ -138,24 +138,21 @@ def parse_message(packet):
 # convert string to padded osc string
 def pack_string(s):
     b = bytes(s + '\x00', 'ascii')
-    if len(b) % 4 != 0:
-        width = (len(b) // 4 + 1) * 4
-        b = b.ljust(width, b'\x00')
-    return b
+    width = ((len(b) + 3) // 4) * 4
+    return b.ljust(width, b'\x00')
 
 
 # convert bytes to padded osc blob
 def pack_blob(b):
     b = bytes(struct.pack('>I', len(b)) + b)
-    if len(b) % 4 != 0:
-        width = (len(b) // 4 + 1) * 4
-        b = b.ljust(width, b'\x00')
-    return b
+    width = ((len(b) + 3) // 4) * 4
+    return b.ljust(width, b'\x00')
 
 
 def pack_message(path, *args):
     result = b''
     typetag = ','
+
     for arg in args:
         if type(arg) == int:
             result += struct.pack('>i', arg)
@@ -177,10 +174,8 @@ def pack_message(path, *args):
             typetag += 'N'
         else:
             raise NotImplementedError('Unable to pack {}'.format(type(arg)))
+
     result = pack_string(path) + pack_string(typetag) + result
-    if len(result) % 4 != 0:
-        width = (len(result) // 4 + 1) * 4
-        result = result.ljust(width, b'\x00')
     return result
 
 
